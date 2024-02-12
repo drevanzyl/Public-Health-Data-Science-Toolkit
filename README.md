@@ -1,11 +1,5 @@
 # Public Health Data Science Toolkit
 
-### Repository Description
-
----
-
-**Public Health Data Science Toolkit**
-
 Welcome to the Public Health Data Science Toolkit, a comprehensive GitHub repository dedicated to empowering public health professionals, researchers, and data scientists. This repository is your go-to resource for R and Python code snippets, scripts, and modules designed to streamline common tasks in public health data analysis, report generation, and beyond. Whether you're managing documents, extracting data, or seeking to leverage the capabilities of specialized tools like REDCap and DHIS2, this toolkit offers a wealth of resources to enhance your workflows and data analysis capabilities.
 
 Our mission is to provide a collaborative space where the public health community can share knowledge, tools, and best practices for data science. With a focus on accessibility and usability, we aim to support public health initiatives by making data analysis more efficient and effective. This repository includes:
