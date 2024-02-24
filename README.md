@@ -1,6 +1,6 @@
 ## **Public Health Data Science Workflow Toolkit**
 
-Welcome to the Public Health Data Science Workflow Toolkit, a meticulously organized GitHub repository designed to serve as a comprehensive guide and toolkit for public health professionals, data scientists, and researchers engaged in data-driven health initiatives. This repository is structured around the data science project lifecycle, offering a wide array of R and Python resources tailored to facilitate every stage of public health data analysis—from data acquisition and cleaning to analysis, visualization, report generation, and deployment.
+Welcome to the Public Health Data Science Workflow Toolkit, a GitHub repository designed to serve as a comprehensive guide and toolkit for public health professionals, data scientists, and researchers engaged in data-driven health initiatives. This repository is structured around the data science project lifecycle, offering a wide array of R and Python resources tailored to facilitate every stage of public health data analysis—from data acquisition and cleaning to analysis, visualization, report generation, and deployment.
 
 Our goal is to democratize access to advanced data science techniques within the public health sector, enabling users to leverage the full potential of their data for impactful health outcomes. By providing an extensive suite of tools, scripts, and guides, we aim to streamline the data science workflow, making it more efficient and accessible for individuals and teams working on public health research and projects.
 
