@@ -1,0 +1,81 @@
+---
+title: "Untitled"
+format: html
+---
+
+```{r}
+# Load the necessary library for data manipulation
+library(tibble)
+
+# Generate the 'epi_data' dataset
+set.seed(123) # For reproducibility
+epi_data <- tibble(
+  person_id = 1:100, # Unique ID for each person
+  age = sample(18:90, 100, replace = TRUE), # Random ages between 18 and 90
+  gender = sample(c("Male", "Female"), 100, replace = TRUE), # Random gender assignment
+  vaccinated = sample(0:1, 100, replace = TRUE), # Random vaccination status, 0 for not vaccinated, 1 for vaccinated
+  infected = sample(0:1, 100, replace = TRUE) # Random infection status, 0 for not infected, 1 for infected
+)
+
+# View the first few rows of the dataset
+head(epi_data)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(haven)
+
+# Define the long-format data dictionary
+data_dictionary_long <- tibble(
+  variable_name = c("person_id", "gender", "vaccinated", "vaccinated", "infected", "infected"),
+  description = c("ID", "Gender", "Vaccination status", "Vaccination status", "Infection status", "Infection status"),
+  value_code = c(NA, NA, 0, 1, 0, 1),
+  value_label = c(NA, NA, "Not Vaccinated", "Vaccinated", "Not Infected", "Infected")
+)
+
+# Define the function to label data using the long-format data dictionary
+label_data_long_format <- function(data, dictionary) {
+  variables <- unique(dictionary$variable_name)
+  
+  for (var_name in variables) {
+    var_dict <- dictionary %>% filter(variable_name == var_name)
+    var_desc <- unique(var_dict$description[1])
+    
+    
+    
+    # Apply value labels if they exist
+    if (!is.na(var_dict$value_code[1])) {
+      val_labels <- setNames(object = var_dict$value_code, nm = var_dict$value_label)
+      data[[var_name]] <- labelled(data[[var_name]], labels = val_labels)
+    }
+    
+    # Apply variable label
+    data[[var_name]] <- labelled(data[[var_name]], label = var_desc)
+  }
+  return(data)
+}
+
+# Assuming 'epi_data' is your original dataset
+# Example usage of the function to label your dataset
+epi_data_labeled <- label_data_long_format(epi_data, data_dictionary_long)
+
+# Example: Check labels for a specific variable, e.g., 'vaccinated'
+# Print the variable label
+print(attr(epi_data_labeled$vaccinated, "label"))
+# Print value labels
+print(labels(epi_data_labeled$vaccinated))
+epi_data_labeled %>% gtsummary::tbl_summary()
+```
+
