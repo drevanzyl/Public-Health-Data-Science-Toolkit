@@ -1,0 +1,62 @@
+---
+title: "Dynamic Report"
+output: word_document
+params:
+  plot_data: NULL  # Data for the plot
+  all_data: NULL   # Full dataset for generating the summary table
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+library(ggplot2)
+library(gtsummary)
+library(gt)
+library(dplyr)
+```
+
+# Visualization
+
+```{r plot, out.width='100%'}
+# Check that plot_data is not NULL
+if (!is.null(params$plot_data)) {
+  ggplot(params$plot_data, aes(x = Year, y = TotalDeaths, color = Regions, group = Regions)) +
+    geom_line() +  # Use a line plot
+    geom_point() +  # Add points for each year/region combination
+    theme_minimal() +
+    labs(title = "Total Deaths by Region Over Time",
+         x = "Year",
+         y = "Total Deaths",
+         color = "Region") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
+} else {
+  plot.new()
+  text(0.5, 0.5, "No data available for the plot")
+}
+
+```
+
+
+# Summary Table
+
+```{r}
+# Check that all_data is not NULL
+if (!is.null(params$all_data)) {
+  params$all_data %>%
+    select(Year, Regions, Deaths, `Age-adjusted Death Rate`) %>%
+    tbl_summary(
+      by = Regions,  # Summarize by regions
+      type = list(
+        Year ~ "continuous",
+        Deaths ~ "continuous",
+        `Age-adjusted Death Rate` ~ "continuous"
+      ),
+      missing = "no"
+    ) %>%
+    as_gt() %>%
+    gt::gt() 
+} else {
+  cat("No data available for the summary table")
+}
+
+```
+
