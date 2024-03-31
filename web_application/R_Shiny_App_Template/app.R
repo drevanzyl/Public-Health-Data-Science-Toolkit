@@ -11,6 +11,11 @@ library(gtsummary) # For creating summary tables
 library(gt) # For formatting tables
 library(rpivotTable) 
 
+if (!requireNamespace("shinythemes", quietly = TRUE)) {
+        install.packages("shinythemes")
+}
+library(shinythemes)
+
 # Define the UI
 ui <- fluidPage(
         titlePanel("Leading Causes of Death in the United States"),
@@ -127,10 +132,12 @@ server <- function(input, output, session) {
                         group_by(Year, Regions) %>%
                         summarise(TotalDeaths = sum(Deaths, na.rm = TRUE)) %>%
                         ungroup()
-                ggplot(data_summarized, aes(x = Year, y = TotalDeaths, color = Regions, group = Regions)) +
+                deaths_plot <- ggplot(data_summarized, aes(x = Year, y = TotalDeaths, color = Regions, group = Regions)) +
                         geom_line() + geom_point() + theme_minimal() +
                         labs(title = "Total Deaths by Region Over Time", x = "Year", y = "Total Deaths", color = "Region") +
                         scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
+                saveRDS(deaths_plot, "deaths_plot.rds")
+                deaths_plot
         })
         
         # Render summary table UI
@@ -140,6 +147,8 @@ server <- function(input, output, session) {
                         select(Year, Regions, Deaths) %>%
                         tbl_summary(by = Regions, type = list(Year ~ "continuous", Deaths ~ "continuous"), missing = "no") %>%
                         as_gt() 
+                saveRDS(summary_tbl, "summary_tbl.rds")
+                summary_tbl
         })
         
         # Handle dynamic report download
