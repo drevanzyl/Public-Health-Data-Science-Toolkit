@@ -1,0 +1,12 @@
+name: r_shiny_data_mapping
+title: Data Mapping Application
+username: andre-van-zyl
+account: andre-van-zyl
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11657562
+bundleId: 8450981
+url: https://andre-van-zyl.shinyapps.io/r_shiny_data_mapping/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

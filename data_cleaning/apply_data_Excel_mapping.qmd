@@ -9,6 +9,7 @@ library(readxl)
 library(readr)
 library(dplyr)
 library(tidyr)
+library(openxlsx)
 
 apply_data_mapping <- function(original_data_path, mapping_path) {
   # Load the mapping rules from the Excel file
@@ -73,7 +74,5 @@ rearranged_df
 ```
 
 ```{r}
-library(readr)
-original_data <- read_csv("original_data.csv")
-original_data
+write.xlsx(rearranged_df, "mapped_data.xlsx")
 ```

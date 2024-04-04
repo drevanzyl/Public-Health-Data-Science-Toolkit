@@ -1,0 +1,213 @@
+---
+title: "DHIS2 Reporting"
+format: docx
+editor: visual
+---
+
+# DHIS2 Login and Data Link
+
+```{r}
+library(tidyverse)
+user = "admin"
+password = "district" 
+
+link = "https://play.dhis2.org/40.3.0/api/analytics.csv?dimension=pe%3A2024AprilS1%3B2024AprilS2&dimension=dx%3AfbfJHSPpUQD%3BcYeuwXTCPkU%3BJtf34kNZhzP%3BhfdmMSPBgLG%3BieZZgaz6ctO&dimension=ou%3AUSER_ORGUNIT_CHILDREN&edi_cache=74f004da0a9e01c0cc9c686994ee2dcb6608b462&tableLayout=true&columns=pe&rows=dx%3Bou&skipRounding=false&completedOnly=false&showHierarchy=true"
+```
+
+# Function to get CSV data from DHIS2
+
+```{r}
+library(httr)
+
+# Function to get data from DHIS2
+getDHIS2CSV <- function(link, user, password) {
+  # Prepare the authentication
+  auth <- authenticate(user = user, password = password, type = "basic")
+  
+  # Make the GET request
+  response <- GET(url = link, auth)
+  
+  # Check if the request was successful
+  if (status_code(response) == 200) {
+    # Parse the CSV content
+    content <- content(response, "text", encoding = "UTF-8")
+    
+    # Define the CSV file name (you may want to customize this)
+    file_name <- paste0(Sys.Date(), "_dhis2_report.csv")
+    
+    # Write the content to a CSV file
+    writeLines(content, con = file_name)
+    
+    cat("Report downloaded successfully:", file_name, "\n")
+  } else {
+    cat("Failed to download the report. Status code:", status_code(response), "\n")
+  }
+}
+
+
+
+# Call the function
+getDHIS2CSV(link, user, password)
+
+```
+
+# Function to get data from DHIS2 and store it as a dataframe
+
+```{r}
+library(httr)
+# If you choose to use read_csv(), uncomment the next line to load the readr package
+# library(readr)
+
+# Function to get data from DHIS2 and store it as a dataframe
+getDHIS2Data <- function(link, user, password) {
+  # Prepare the authentication
+  auth <- authenticate(user = user, password = password, type = "basic")
+  
+  # Make the GET request
+  response <- GET(url = link, auth)
+  
+  # Check if the request was successful
+  if (status_code(response) == 200) {
+    # Parse the content as text
+    content <- content(response, "text", encoding = "UTF-8")
+    
+    # Convert CSV content to a dataframe
+    # Using read.csv from base R
+    data <- read.csv(text = content, stringsAsFactors = FALSE)
+    
+    # Alternatively, using read_csv from the readr package
+    # data <- read_csv(content)
+    
+    cat("Data frame created successfully.\n")
+    
+    # Return the dataframe
+    return(data)
+  } else {
+    cat("Failed to fetch data. Status code:", status_code(response), "\n")
+    return(NULL)
+  }
+}
+
+# Using the function
+
+# Call the function and store the result
+df <- getDHIS2Data(link, user, password)
+
+# You can now work with the df dataframe directly in R
+print(head(df))
+
+```
+
+```{r}
+
+
+DHIS2Data <- getDHIS2Data(link, user, password)
+getDHIS2CSV(link, user, password)
+```
+
+
+# Function to create a publication-ready table using the gt package
+
+
+```{r}
+library(gt)
+library(dplyr)
+
+# Updated function with parameters for title, subtitle, and footnote
+prettyDHIS2table <- function(df, title = "Monthly Data Report", subtitle = "A summary of the first quarter", footnote = "Source: Your Data Source") {
+  gt_table <- df %>%
+    select(-c(dataid, datacode, datadescription, organisationunitid, organisationunitdescription, organisationunitcode)) %>%
+    group_by(dataname, organisationunitname) %>%
+    gt() %>%
+    tab_header(
+      title = title,
+      subtitle = subtitle
+    ) %>%
+    cols_label(
+      dataname = "Data Name",
+      organisationunitname = "Organisation Unit"
+      # You might adjust the labels here based on the columns you're including
+    ) %>%
+    tab_options(
+      heading.background.color = "#D3D3D3",
+      column_labels.font.size = "small",
+      table.width = pct(100)
+    ) %>%
+    tab_footnote(
+      footnote = footnote,
+      locations = cells_title(groups = "title")
+    )
+  
+  # Return the gt table
+  return(gt_table)
+}
+
+# Example of calling the function with custom parameters
+prettyDHIS2table(DHIS2Data, "Your Custom Title", "Your Custom Subtitle", "Your Custom Footnote")
+
+```
+
+# Function to create a publication-ready table using the flextable package
+
+```{r}
+
+library(flextable)
+library(dplyr)
+
+set_flextable_defaults(
+  font.size = 10, theme_fun = theme_vanilla,
+  padding = 6,
+  background.color = "#EFEFEF")
+
+prettyDHIS2table <- function(df, 
+                             caption = "Monthly Data Report",
+                             footnote = "Source: Your Data Source", 
+                             header_row_values = c("ID", "other measures"),
+                             colwidths = c(3, 2)) {
+  # Prepare the data frame, assuming df is already imported
+  df_prepared <- df %>%
+    select(-c(dataid, datacode, datadescription, organisationunitid, organisationunitdescription, organisationunitcode, orgunitlevel2)) %>%
+    group_by(dataname, organisationunitname) %>%
+          rename("Measure"=dataname, "Country" = orgunitlevel1, "Organizational Unit Name" = organisationunitname)
+  
+   # First replace "..." with " - ", then replace remaining "." with " "
+  colnames(df_prepared) <- gsub("\\.\\.\\.", " - ", colnames(df_prepared))
+  colnames(df_prepared) <- gsub("\\.", " ", colnames(df_prepared))
+  
+  # Create the flextable
+  ft <- df_prepared %>%
+    flextable() %>%
+          
+    set_caption(caption = caption) %>%
+    add_footer_lines(footnote) %>%     
+          
+
+          
+    autofit()%>%
+    merge_v(j = ~Measure + Country) %>%  # Merge cells vertically in the 'dataname' column 
+    add_header_row(
+   values = header_row_values,
+  colwidths = colwidths) %>%
+          add_header_lines(
+  values = c(caption) ) %>%
+           theme_vanilla()
+  
+  # Add a footnote
+  ft <- tryCatch({
+    ft <- ft %>% footnote_general(content = footnote, ref_symbols = "*")
+    return(ft)
+  }, error = function(e) {
+    message("Error adding footnote, proceeding without it: ", e$message)
+    return(ft)
+  })
+
+  return(ft)
+}
+
+# Example of how to call the function with custom parameters
+ft_table <- prettyDHIS2table(DHIS2Data, "Your Custom Title",  "Your Custom Footnote")
+ft_table
+
+```
+
+
