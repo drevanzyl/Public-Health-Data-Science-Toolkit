@@ -1,0 +1,95 @@
+---
+title: "R Function to Clean Data Using a Lookup Table"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+library(dplyr)
+library(stringr)
+
+# Define the function to clean the data with removal of all numbers and special characters
+clean_character_data <- function(text, case = "lower") {
+  # Replace non-letter and non-space characters, including numbers, with nothing
+  cleaned_text <- str_replace_all(text, "[^\\p{L}\\s]", "")
+  # Replace multiple spaces and line breaks with a single space
+  cleaned_text <- str_replace_all(cleaned_text, "\\s+", " ")
+  # Trim leading and trailing spaces
+  cleaned_text <- trimws(cleaned_text)
+  # Apply the specified case transformation
+  switch(case,
+         "lower" = cleaned_text <- tolower(cleaned_text),
+         "upper" = cleaned_text <- toupper(cleaned_text),
+         "title" = cleaned_text <- tools::toTitleCase(cleaned_text),
+         "sentence" = {
+           cleaned_text <- tolower(cleaned_text)
+           cleaned_text <- sub("^(.)", "\\U\\1", cleaned_text, perl = TRUE)
+         },
+         cleaned_text <- cleaned_text  # default to returning the cleaned text as is if no case match
+  )
+  return(cleaned_text)
+}
+
+# Example data frame with multi-line text and numbers
+data <- tibble(
+  raw_text = c("Hello, world! 123@#%@#^^", "Testing: 1, 2, 3.", "Clean? data! New line 456!")
+)
+
+# Use mutate to clean the data and apply different case options
+clean_data <- data %>%
+  mutate(clean_text_lower = clean_character_data(raw_text, case = "lower"),
+         clean_text_upper = clean_character_data(raw_text, case = "upper"),
+         clean_text_title = clean_character_data(raw_text, case = "title"),
+         clean_text_sentence = clean_character_data(raw_text, case = "sentence"))
+
+print(clean_data)
+
+
+```
+
+
+
+
+
+```{r}
+Location <- read_excel("Location.xlsx")
+Location
+```
+
+
+
+
+
+
+```{r}
+library(dplyr)
+library(readxl)
+
+# Define a function that always creates a lookup vector and cleans data
+# Allows specifying the sheet of the Excel file; defaults to the first sheet if not specified
+clean_data <- function(raw_value, excel_path, excel_raw_col = "Raw Location Value", excel_clean_col = "Clean Location Value", sheet = NULL) {
+  # Load the lookup table from the specified or first sheet
+  if (is.null(sheet)) {
+    lookup_table <- read_excel(excel_path)
+  } else {
+    lookup_table <- read_excel(excel_path, sheet = sheet)
+  }
+  
+  # Create the lookup vector
+  lookup_vector <- setNames(lookup_table[[excel_clean_col]], lookup_table[[excel_raw_col]])
+  
+  # Return the cleaned value or the original if not found
+  ifelse(is.na(lookup_vector[raw_value]), raw_value, lookup_vector[raw_value])
+}
+
+# Example usage:
+# Assuming 'Location' is your dataframe and 'Raw Location Value' is the column to clean
+# Specify the path to the Excel file, sheet, and relevant columns
+Location <- Location %>%
+  mutate(clean_location = clean_data(`Raw Location Value`, "Location_Lookup_Table.xlsx"),
+         clean_location3 = clean_data(`Raw Location Value`, "Location_Lookup_Table.xlsx", sheet = 1))
+Location
+```
+

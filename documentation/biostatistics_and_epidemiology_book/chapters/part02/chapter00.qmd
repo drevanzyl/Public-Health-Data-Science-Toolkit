@@ -1,0 +1,23 @@
+# Part 2 Chapter 1: Basics of Biostatistics {.unnumbered}
+
+
+Biostatistics is a fundamental discipline at the intersection of biology, statistics, and health sciences. It plays a crucial role in designing biological experiments, analyzing data from medical research, and interpreting the results to make informed decisions in public health and medicine. [@batra2021]
+
+Biostatistics applies statistical principles to questions and problems in biology, health, and medicine. In the context of public health, biostatisticians use statistical methods to understand and address the health issues affecting populations.
+
+### The Role of Biostatistics in Research
+
+Biostatistics is vital for: - Designing biological and health sciences experiments. - Collecting, analyzing, and interpreting data. - Making evidence-based decisions.
+
+## Key Concepts in Biostatistics
+
+### Descriptive Statistics
+
+Descriptive statistics summarize and provide information about the collected data. This includes measures of central tendency like the mean, median, and mode, and measures of variability like the standard deviation and interquartile range.
+
+```{r}
+# R code for calculating basic descriptive statistics
+data <- c(1, 2, 3, 4, 5)
+mean(data)
+sd(data)
+```
