@@ -9,6 +9,8 @@ editor: visual
 ```{r}
 library(dplyr)
 library(stringr)
+library(dplyr)
+library(readxl)
 
 # Define the function to clean the data with removal of all numbers and special characters
 clean_character_data <- function(text, case = "lower") {
@@ -49,23 +51,13 @@ print(clean_data)
 
 ```
 
-
-
-
-
 ```{r}
 Location <- read_excel("Location.xlsx")
 Location
 ```
 
-
-
-
-
-
 ```{r}
-library(dplyr)
-library(readxl)
+
 
 # Define a function that always creates a lookup vector and cleans data
 # Allows specifying the sheet of the Excel file; defaults to the first sheet if not specified
@@ -93,3 +85,79 @@ Location <- Location %>%
 Location
 ```
 
+
+
+
+```         
+/* Step 1: Import the Excel file into a SAS dataset */
+libname myexcel EXCEL "path/to/your/Location_Lookup_Table.xlsx";
+data lookup;
+    set myexcel.'SpecificSheetName$'n; /* Specify the sheet name here */
+run;
+libname myexcel CLEAR;
+
+/* Step 2: Create a lookup table in SAS */
+data lookup_clean;
+    set lookup;
+    rename Raw_Location_Value = raw_location
+           Clean_Location_Value = clean_location;
+run;
+
+/* Step 3: Apply the lookup to clean your data */
+/* Assuming your main dataset is already loaded in SAS as 'main_data' */
+data cleaned_data;
+    merge main_data(in=a) lookup_clean(in=b rename=(raw_location=Raw_Location_Value));
+    by Raw_Location_Value;
+    if a;
+    clean_location = coalesce(clean_location, Raw_Location_Value); /* Replace missing clean values with raw */
+run;
+
+/* Print the result to check */
+proc print data=cleaned_data;
+run;
+```
+
+```         
+/* SAS macro to clean character data, removing numbers and special characters */
+%macro clean_character_data(data=, var=, outvar=, case=lower);
+   data _temp;
+      set &data;
+      /* Remove all numbers and special characters, retain only letters and spaces */
+      &outvar = prxchange('s/[^a-zA-Z ]//', -1, &var);
+      /* Collapse multiple spaces into a single space */
+      &outvar = prxchange('s/\s+/ /', -1, &outvar);
+      /* Trim leading and trailing spaces */
+      &outvar = strip(&outvar);
+
+      /* Convert text to specified case */
+      select (lowcase("&case"));
+         when ('lower') &outvar = lowcase(&outvar);
+         when ('upper') &outvar = upcase(&outvar);
+         when ('title') &outvar = propcase(&outvar);
+         when ('sentence') do;
+            /* Sentence case: lower everything then capitalize the first letter */
+            &outvar = lowcase(&outvar);
+            &outvar = catx(' ', propcase(scan(&outvar, 1)), substr(lowcase(&outvar), length(scan(&outvar, 1)) + 2));
+         end;
+         otherwise;
+      end;
+   run;
+%mend clean_character_data;
+
+/* Example usage of the macro */
+data example;
+   input raw_text $50.;
+   datalines;
+Hello, world! 123
+Testing: 1, 2, 3.
+Clean? data! New line 456!
+;
+run;
+
+/* Apply the cleaning macro */
+%clean_character_data(data=example, var=raw_text, outvar=clean_text, case=title);
+
+/* Print the cleaned data */
+proc print data=_temp;
+run;
+```
