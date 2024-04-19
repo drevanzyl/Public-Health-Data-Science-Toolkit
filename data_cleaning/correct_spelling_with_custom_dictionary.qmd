@@ -1,0 +1,76 @@
+---
+title: "Correct Splling with dictionary"
+format: html
+---
+
+# Load required libraries
+library(dplyr)
+library(stringr)
+
+# Read the data dictionary CSV file
+dict <- read.csv("data_dictionary.csv", stringsAsFactors = FALSE)
+
+# Create a named vector from the data dictionary for efficient lookup
+dict_vec <- setNames(dict$Word, dict$words_trimmed)
+
+# Function to clean a single value using the data dictionary
+clean_value <- function(value, dict_vec) {
+  # Split the value into individual words
+  words <- str_split(value, "\\s+")[[1]]
+  
+  # Replace misspelled words with their corrected versions
+  corrected_words <- ifelse(words %in% names(dict_vec), dict_vec[words], words)
+  
+  # Join the corrected words back into a single string
+  corrected_value <- paste(corrected_words, collapse = " ")
+  
+  return(corrected_value)
+}
+
+# Example usage
+# Assuming you have a data frame called 'df' with a column named 'text'
+# containing misspelled words
+
+# Apply the clean_value function to each value in the 'text' column
+df$cleaned_text <- sapply(df$text, clean_value, dict_vec = dict_vec)
+
+# Print the original and cleaned text
+print(data.frame(original = df$text, cleaned = df$cleaned_text))
+
+
+V2
+
+# Load required libraries
+library(dplyr)
+library(stringr)
+
+# Read the data dictionary CSV file
+dict <- read.csv("data_dictionary.csv", stringsAsFactors = FALSE)
+
+# Create a named vector from the data dictionary for efficient lookup
+dict_vec <- setNames(dict$Word, dict$words_trimmed)
+
+# Function to clean a single value using the data dictionary
+clean_value <- function(value, dict_vec) {
+  # Split the value into individual words
+  words <- str_split(value, "\\s+")[[1]]
+  
+  # Replace misspelled words with their corrected versions
+  corrected_words <- ifelse(words %in% names(dict_vec), dict_vec[words], words)
+  
+  # Join the corrected words back into a single string
+  corrected_value <- paste(corrected_words, collapse = " ")
+  
+  return(corrected_value)
+}
+
+# Example usage
+# Assuming you have a data frame called 'df' with a column named 'text'
+# containing misspelled words
+
+# Use mutate() to apply the clean_value function to the 'text' column
+df <- df %>%
+  mutate(cleaned_text = sapply(text, clean_value, dict_vec = dict_vec))
+
+# Print the original and cleaned text
+print(df %>% select(text, cleaned_text))
