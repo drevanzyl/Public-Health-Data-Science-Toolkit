@@ -1,3 +1,4 @@
+
 # Function to install and load required packages
 install_load_packages <- function(packages) {
   for (package in packages) {
@@ -115,7 +116,12 @@ server <- function(input, output, session) {
   # Create a reactive expression for the missing sheets data
   missingSheetsData <- eventReactive(input$process, {
     req(processedData())
-    tibble(Missing_Files = processedData()$missing)
+    missing <- processedData()$missing
+    if (length(missing) > 0) {
+      tibble(Missing_Files = missing)
+    } else {
+      tibble(Missing_Files = "All files contain the selected sheet.")
+    }
   })
   
   # Render the processed data table in the UI using DT::renderDataTable
