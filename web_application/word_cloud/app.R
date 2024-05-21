@@ -4,6 +4,7 @@ library(wordcloud)
 library(wordcloud2)
 library(openxlsx)
 library(plotly)
+library(tidyverse)
 
 ui <- fluidPage(
   titlePanel("Word Frequency Analysis"),
@@ -45,7 +46,7 @@ server <- function(input, output, session) {
     
     # Text processing
     docs <- Corpus(VectorSource(text))
-    docs <- tm_map(docs, content_transformer(function(x) gsub("http\\S+|www\\S+", "", x)))
+    #docs <- tm_map(docs, content_transformer(function(x) gsub("http\\S+|www\\S+", "", x)))
     docs <- tm_map(docs, content_transformer(function(x) gsub("[[:punct:]]", "", x)))
     docs <- tm_map(docs, content_transformer(function(x) gsub("\\d+", "", x)))
     docs <- tm_map(docs, content_transformer(tolower))
