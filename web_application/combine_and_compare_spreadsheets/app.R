@@ -62,7 +62,7 @@ server <- function(input, output, session) {
     updateSelectInput(session, "sheetName", choices = sheets)
   })
   
-  # Process the data when the 'Process Files' button is clicked
+  # Process the data and generate column names data when the 'Process Files' button is clicked
   processedData <- eventReactive(input$process, {
     req(input$files, input$sheetName, input$headerRow)
     filePaths <- input$files$datapath
@@ -74,7 +74,7 @@ server <- function(input, output, session) {
     # Combine data from all uploaded files that contain the selected sheet
     filesList <- lapply(seq_along(filePaths), function(i) {
       if (input$sheetName %in% excel_sheets(filePaths[i])) {
-        read_excel(filePaths[i], sheet = input$sheetName, skip = input$headerRow - 1) %>%
+        read_excel(filePaths[i], sheet = input$sheetName, skip = input$headerRow, col_types = "text") %>%
           rename_with(~ ifelse(grepl("^\\.\\.\\.", .), sub("^\\.\\.\\.", "x_", .), .), everything()) %>%
           clean_names() %>%
           mutate(`Source File` = fileNames[i])
@@ -82,28 +82,18 @@ server <- function(input, output, session) {
         missing <<- c(missing, fileNames[i])
         NULL
       }
-    }) %>% 
+    }) %>%
       discard(is.null) %>%
       map(~ mutate_all(.x, as.character)) %>%
       bind_rows() %>%
       select(`Source File`, everything())
     
-    list(data = filesList, missing = missing)
-  })
-  
-  # Generate a table of column names and their occurrences when the 'Process Files' button is clicked
-  columnNamesData <- eventReactive(input$process, {
-    req(input$files, input$sheetName, input$headerRow)
-    filePaths <- input$files$datapath
-    fileNames <- input$files$name
-    
-    # Combine data from all uploaded files that contain the selected sheet
-    filesList <- lapply(seq_along(filePaths), function(i) {
-      if (input$sheetName %in% excel_sheets(filePaths[i])) {
-        data <- read_excel(filePaths[i], sheet = input$sheetName, skip = input$headerRow - 1) %>%
-          rename_with(~ ifelse(grepl("^\\.\\.\\.", .), sub("^\\.\\.\\.", "x_", .), .), everything()) %>%
-          clean_names() %>%
-          mutate(`Source File` = fileNames[i])
+    # Extract and clean column names for each file
+    columnNamesData <- lapply(seq_along(filePaths), function(i) {
+      if (!is.na(filePaths[i]) && input$sheetName %in% excel_sheets(filePaths[i])) {
+        data <- read_excel(filePaths[i], sheet = input$sheetName, skip = input$headerRow, col_names = TRUE, col_types = "text") %>%
+          rename_with(~ gsub("^\\.{3}", "x_", .)) %>%
+          clean_names()
         
         tibble(
           `Source File` = fileNames[i],
@@ -114,23 +104,23 @@ server <- function(input, output, session) {
       }
     }) %>%
       discard(is.null) %>%
-      bind_rows()
+      bind_rows() %>%
+      unique()
     
     # Calculate frequency of each column name across all files
-    columnNamesCount <- filesList %>%
+    columnNamesCount <- columnNamesData %>%
       group_by(`Column_Name`) %>%
       summarise(Frequency = n(), .groups = 'drop')
     
     # Join frequency data back to the original detailed list
-    columnNamesData <- left_join(filesList, columnNamesCount, by = "Column_Name") %>% 
-      arrange(Frequency) %>%
-      filter(Column_Name != "Source File")
+    columnNamesData <- left_join(columnNamesData, columnNamesCount, by = "Column_Name") %>% 
+      arrange(Frequency)
     
-    columnNamesData
+    list(data = filesList, missing = missing, columnNames = columnNamesData)
   })
   
   # Create a reactive expression for the missing sheets data
-  missingSheetsData <- eventReactive(input$process, {
+  missingSheetsData <- reactive({
     req(processedData())
     missing <- processedData()$missing
     if (length(missing) > 0) {
@@ -148,8 +138,8 @@ server <- function(input, output, session) {
   
   # Render the column names table in the UI using DT::renderDataTable
   output$columnNamesTable <- renderDT({
-    req(columnNamesData())
-    datatable(columnNamesData(), options = list(autoWidth = TRUE))
+    req(processedData())
+    datatable(processedData()$columnNames, options = list(autoWidth = TRUE))
   })
   
   # Render the missing sheets table in the UI using DT::renderDataTable
@@ -182,7 +172,7 @@ server <- function(input, output, session) {
     content = function(file) {
       write.xlsx(list(
         ProcessedData = processedData()$data, 
-        ColumnNamesData = columnNamesData(),
+        ColumnNamesData = processedData()$columnNames,
         MissingSheetsData = missingSheetsData()
       ), file, asTable = TRUE)
     }
