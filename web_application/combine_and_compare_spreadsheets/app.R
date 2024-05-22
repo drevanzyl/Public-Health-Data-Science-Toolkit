@@ -93,22 +93,38 @@ server <- function(input, output, session) {
   
   # Generate a table of column names and their occurrences when the 'Process Files' button is clicked
   columnNamesData <- eventReactive(input$process, {
-    req(processedData())
+    req(input$files, input$sheetName, input$headerRow)
+    filePaths <- input$files$datapath
+    fileNames <- input$files$name
     
-    # Extract and clean column names from the combined data
-    combinedData <- processedData()$data
-    columnNamesData <- tibble(
-      Source_File = rep(unique(combinedData$`Source File`), each = ncol(combinedData) - 1),
-      Column_Name = rep(colnames(combinedData)[-1], times = length(unique(combinedData$`Source File`)))
-    )
+    # Combine data from all uploaded files that contain the selected sheet
+    filesList <- lapply(seq_along(filePaths), function(i) {
+      if (input$sheetName %in% excel_sheets(filePaths[i])) {
+        data <- read_excel(filePaths[i], sheet = input$sheetName, skip = input$headerRow - 1) %>%
+          rename_with(~ ifelse(grepl("^\\.\\.\\.", .), sub("^\\.\\.\\.", "x_", .), .), everything()) %>%
+          clean_names() %>%
+          mutate(`Source File` = fileNames[i])
+        
+        tibble(
+          `Source File` = fileNames[i],
+          `Column_Name` = names(data)
+        )
+      } else {
+        NULL
+      }
+    }) %>%
+      discard(is.null) %>%
+      bind_rows()
     
     # Calculate frequency of each column name across all files
-    columnNamesCount <- columnNamesData %>%
-      group_by(Column_Name) %>%
+    columnNamesCount <- filesList %>%
+      group_by(`Column_Name`) %>%
       summarise(Frequency = n(), .groups = 'drop')
     
     # Join frequency data back to the original detailed list
-    columnNamesData <- left_join(columnNamesData, columnNamesCount, by = "Column_Name")
+    columnNamesData <- left_join(filesList, columnNamesCount, by = "Column_Name") %>% 
+      arrange(Frequency) %>%
+      filter(Column_Name != "Source File")
     
     columnNamesData
   })
