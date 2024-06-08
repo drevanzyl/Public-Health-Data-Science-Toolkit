@@ -1,0 +1,21 @@
+biosample_id,locus_tag_prefix,organism_group,isolate_identifiers,isolate,create_date,location,isolation_source,host,collection_date,sample_type,mlst,collected_by,host_disease,lat_lon,strain
+SAMN20604113,K3B24,Proteus mirabilis,2021LN-00061,Whole Organism,2021-08-06T18:25:06.550,USA,Wound Drainage,Homo sapiens,2021-06-14,2021LN-00061,,,,,
+SAMN24965750,L1S60,Acinetobacter baumannii,2021CK-01833,2021CK-01833,2022-01-13T17:58:04.024,USA,sputum,Homo sapiens,2012-12-11,,"MLST2,PubMLSTabaumannii_2",NA,NA,Missing,
+SAMN41513665,ABIM91,Enterobacter hormaechei,2024KU-00247,2024KU-00247,2024-05-23T18:20:05.010,USA,Lavage - Bronchial,Homo sapiens,2024-04-07,whole organism,-,,,,not collected
+SAMN36730844,RVS39,Pseudomonas aeruginosa,2022IQ-00034,clinical,2023-07-27T15:46:05.573,USA: Florida,Homo Sapiens clinical,Homo sapiens,2022-09-04,,,Florida Bureau of Public Health Laboratories,Health care-associated infection,NA,
+SAMN18006732,JX801,Acinetobacter baumannii,2021CK-00616,2021CK-00616,2021-02-19T16:17:05.130,USA,Wound/Abscess,Homo sapiens,2020-12-28,,,NA,NA,Missing,
+SAMN33830180,P4S20,Klebsiella pneumoniae,2023DK-00058,2023DK-00058,2023-03-20T15:41:03.791,USA,cranial bone flap,Homo sapiens,2023,,,missing,missing,missing,
+SAMN41393894,ABFF43,Acinetobacter baumannii,2024ZN-0143,2024ZN-0143,2024-05-14T13:32:05.450,USA,SWAB_NASAL,Homo sapiens,2024,whole organism,,,,,
+SAMN31836663,OV852,Acinetobacter baumannii,2022KU-00366,2022KU-00366,2022-11-22T11:34:04.222,USA,Rectal swab,Homo sapiens,2022-11-02,whole organism,2,,,,not collected
+SAMN40969013,AAE014,Enterobacter hormaechei,2024BM-00047,2024BM-00047,2024-04-15T09:40:10.484,USA,urine,Homo sapiens,2024,whole organism,MLST78_Pasteur,,,,
+SAMN38280532,SK482,Pseudomonas aeruginosa,2023KU-00471,2023KU-00471,2023-11-16T08:14:04.979,USA,urine,Homo sapiens,2023-09-16,whole organism,282,,,,not collected
+SAMN34174881,QDS64,Acinetobacter baumannii,2022JQ-00870,whole organism,2023-04-13T19:36:05.502,USA,respiratory,Homo sapiens,2022,2022JQ-00870,MLST1022 Pasteur,,,,
+SAMN18636564,J9847,Acinetobacter baumannii,2021CK-00809,2021CK-00809,2021-04-06T14:44:09.500,USA,Tissue,Homo sapiens,2021-03-08,,,NA,NA,Missing,
+SAMN33190959,PSO56,Acinetobacter baumannii,2022JQ-00664,whole organism,2023-02-07T14:07:05.891,USA,Rectal,Homo sapiens,2022,2022JQ-00664,MLST2 Pasteur,,,,
+SAMN34420691,WJG88,Klebsiella pneumoniae,CR-596,CR-596,2024-03-19T18:40:24.123,USA,urine,Homo sapiens,2015,whole organism,MLST258_Pasteur,,,,
+SAMN26419365,MMK58,Pseudomonas aeruginosa,2021HL-01160,,2022-03-03T12:57:04.426,USA,urine,Homo sapiens,2021,whole organism,MLST235 PubMLST,,,,2021HL-01160
+SAMN39622096,V2F59,Klebsiella pneumoniae,2024CR-00005,,2024-01-26T16:05:04.633,USA,urine,Homo sapiens,2023,not collected,,,,,Klebsiella spp
+SAMN40137353,V7936,Acinetobacter baumannii,2023ZN-0102,2023ZN-0102,2024-02-26T11:22:05.432,USA,,Homo sapiens,2023,whole organism,,,,,
+SAMN27992992,M2O38,Acinetobacter baumannii,2022CK-00282,2022CK-00282,2022-04-29T15:20:06.021,USA,skin,Homo sapiens,2022-04-19,,"MLST499,PubMLSTabaumannii_2",NA,NA,Missing,
+SAMN22896414,LN612,Providencia stuartii,2020JQ-00015,whole organism,2021-11-04T18:55:04.348,USA,urine,Homo sapiens,2020,2020JQ-00015,,,,,
+SAMN36672536,RXE49,Pseudomonas aeruginosa,2023IQ-00033,Homo Sapiens clinical,2023-07-21T10:30:11.219,USA: Florida,clinical,Homo sapiens,2023-04-03,,,Florida Bureau of Public Health Laboratories,Health care-associated infection,NA,
