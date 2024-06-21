@@ -3,65 +3,34 @@ title: "Untitled"
 format: html
 ---
 
+
 ```{r}
 # install.packages("devtools")
 # library(devtools)
 # install_github("ropensci/rentrez")
 ```
 
+
 ```{r}
-library(rentrez, help, pos = 2, lib.loc = NULL)
+library(rentrez)
 entrez_dbs()
 ```
+
 
 ```{r}
 entrez_db_summary("bioproject")
 ```
 
+
 ```{r}
 search_fields <- entrez_db_searchable("bioproject")
 search_fields$PRJA 	 
 ```
-
 ```{r}
 search_fields$PID
 ```
 
+
 ```{r}
 entrez_db_links("bioproject")
-```
-
-```{r}
-install.packages("bigrquery")
-```
-
-```{r}
-library(bigrquery)
-billing <- ncbi_pathogen-detect.pdbrowser.isolates() # replace this with your project ID 
-sql <- "SELECT * FROM `ncbi-pathogen-detect.pdbrowser.isolates` LIMIT 10000000"
-
-tb <- bq_project_query(billing, sql)
-bq_table_download(tb, n_max = 10)
-```
-
-```{r}
-library(readr)
-data <- read_csv("C:/Users/andre/Documents/Git/Public-Health-Data-Science-Toolkit/integration_with_tools/dhis2/data.csv")
-View(data)
-```
-
-```{r}
-#| out-width: 100%
-#| 
-library(ggplot2)
-
-ggplot(data) +
-  aes(x = Period, y = Value) +
-  geom_col(position = "dodge") +
-  scale_fill_hue(direction = 1) +
-  theme_minimal() + coord_flip()+
-
-        
-  facet_wrap(~Data + Area, ncol = 1L)
-
 ```
