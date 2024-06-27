@@ -1,0 +1,5 @@
+Numerator,Denominator,Name
+Carbapenem-resistant clinical culture isolates,Clinical culture isolates with AST conducted,Proportion of isolates resistant to at least 1 carbapenem (%)
+Clinical culture isolates with CP detected,Clinical culture isolates with CP testing conducted,Proportion of isolates with phenotypic CP detected (%)
+Clinical culture isolates with Gene/Enzyme detected,Clinical culture isolates with Gene/Enzyme testing conducted,Proportion of isolates with gene/enzyme detected (%)
+CP or gene/enzyme detected (number),CP or gene/enzyme testing conducted (number),Proportion of isolates identified as CPO (%)

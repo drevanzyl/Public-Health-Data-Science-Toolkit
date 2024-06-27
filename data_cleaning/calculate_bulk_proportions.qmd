@@ -1,0 +1,97 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+library(tidyverse)
+library(readr)
+
+calculate_bulk_proportions <- function(data, config_file) {
+  # Read the configuration CSV file
+  config <- read_csv(config_file, show_col_types = FALSE)
+  
+  # Function to safely calculate proportion
+  safe_proportion <- function(numerator, denominator) {
+    ifelse(is.na(numerator) | is.na(denominator) | denominator == 0,
+           NA_real_,
+           numerator / denominator)
+  }
+  
+  # Iterate through each row in the config file
+  for (i in 1:nrow(config)) {
+    numerator_col <- config$Numerator[i]
+    denominator_col <- config$Denominator[i]
+    proportion_name <- config$Name[i]
+    
+    # Check if columns exist in the data
+    if (!(numerator_col %in% names(data)) || !(denominator_col %in% names(data))) {
+      warning(paste("Columns", numerator_col, "or", denominator_col, "not found in data. Skipping."))
+      next
+    }
+    
+    # Calculate the proportion
+    data <- data %>%
+      mutate(!!proportion_name := safe_proportion(!!sym(numerator_col), !!sym(denominator_col)))
+    
+    # Move the new column after the numerator column
+    col_index <- which(names(data) == numerator_col)
+    data <- data %>%
+      relocate(!!proportion_name, .after = !!sym(numerator_col))
+  }
+  
+  return(data)
+}
+```
+
+You can add options to executable code like this
+
+```{r}
+# Sample data
+library(tidyverse)
+
+set.seed(123)  # for reproducibility
+
+sample_data <- tibble(
+  `Clinical culture isolates with AST conducted` = sample(100:200, 5),
+  `Carbapenem-resistant clinical culture isolates` = sample(10:50, 5),
+  `Clinical culture isolates with CP testing conducted` = sample(80:150, 5),
+  `Clinical culture isolates with CP detected` = sample(5:30, 5),
+  `Clinical culture isolates with Gene/Enzyme testing conducted` = sample(70:130, 5),
+  `Clinical culture isolates with Gene/Enzyme detected` = sample(3:25, 5),
+  `CP or gene/enzyme testing conducted (number)` = sample(60:120, 5),
+  `CP or gene/enzyme detected (number)` = sample(2:20, 5)
+)
+
+# Display the sample data
+print(sample_data)
+
+# Configuration CSV content
+config_csv <- '
+Numerator,Denominator,Name
+"Carbapenem-resistant clinical culture isolates","Clinical culture isolates with AST conducted","Proportion of isolates resistant to at least 1 carbapenem (%)"
+"Clinical culture isolates with CP detected","Clinical culture isolates with CP testing conducted","Proportion of isolates with phenotypic CP detected (%)"
+"Clinical culture isolates with Gene/Enzyme detected","Clinical culture isolates with Gene/Enzyme testing conducted","Proportion of isolates with gene/enzyme detected (%)"
+"CP or gene/enzyme detected (number)","CP or gene/enzyme testing conducted (number)","Proportion of isolates identified as CPO (%)"
+'
+
+# Write the configuration to a CSV file
+write_csv(read_csv(config_csv), "proportion_config.csv")
+
+# Now you can use the function like this:
+result <- calculate_bulk_proportions(sample_data, "proportion_config.csv")
+
+# Display the result
+print(result)
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
