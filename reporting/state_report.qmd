@@ -1,0 +1,47 @@
+---
+title: "State Report: `r params$state`"
+author: "Public Health Data Science Toolkit"
+date: today
+format: docx
+params:
+  state: "state"
+  report_freq: NULL
+---
+
+## State Reporting Summary
+
+This report provides an overview of reporting status for state **`r params$state`**.
+
+```{r}
+#| echo: false
+#| warning: false
+
+library(knitr)
+library(dplyr)
+
+```
+
+
+```{r}
+#| echo: false
+
+load(file = here::here("reporting.RData"))
+
+# Filter the data for the current state
+df_state <- df %>% filter(state == params$state)
+
+nrow(df_state)
+```
+```{r}
+#| echo: false
+
+
+library(gtsummary)
+df_state %>% 
+  select(-state) %>% 
+  tbl_summary() %>% 
+  modify_header(label = "**Variable**") %>% 
+  modify_spanning_header(all_stat_cols() ~ "**Summary Statistics**") %>% 
+  modify_caption("Summary statistics for state **`r params$state`**")
+```
+

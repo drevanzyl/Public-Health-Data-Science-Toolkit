@@ -3,33 +3,29 @@ title: "Untitled"
 format: html
 ---
 
-
 ```{r}
 # install.packages("devtools")
 # library(devtools)
 # install_github("ropensci/rentrez")
 ```
 
-
 ```{r}
 library(rentrez)
 entrez_dbs()
 ```
 
-
 ```{r}
 entrez_db_summary("bioproject")
 ```
-
 
 ```{r}
 search_fields <- entrez_db_searchable("bioproject")
 search_fields$PRJA 	 
 ```
+
 ```{r}
 search_fields$PID
 ```
-
 
 ```{r}
 entrez_db_links("bioproject")
